@@ -8,21 +8,11 @@ import os
 import zipfile
 
 def main():
-    #Step 1 - download google's pre-trained neural network
-    #url = 'https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip'
+
     data_dir = '../data/'
-    #model_name = os.path.split(url)[-1]
-    #local_zip_file = os.path.join(data_dir, model_name)
-    #if not os.path.exists(local_zip_file):
-        # Download
-        #model_url = urllib.request.urlopen(url)
-        #with open(local_zip_file, 'wb') as output:
-            #output.write(model_url.read())
-        # Extract
-        #with zipfile.ZipFile(local_zip_file, 'r') as zip_ref:
-            #zip_ref.extractall(data_dir)
+
   
-    # start with a gray image with a little noise
+
     img_noise = np.random.uniform(size=(224,224,3)) + 100.0
   
     model_fn = 'tensorflow_inception_graph.pb'
@@ -44,12 +34,6 @@ def main():
     print('Number of layers', len(layers))
     print('Total number of feature channels:', sum(feature_nums))
   
- #####HELPER FUNCTIONS. I didn't go over these in the video for times sake. They are mostly just formatting functions. Scroll 
- #to the bottom #########################################################################################################
- ########################################################################################################################
- ############################################################
- 
-    # Helper functions for TF Graph visualization
     #pylint: disable=unused-variable
     def strip_consts(graph_def, max_const_size=32):
         """Strip large constant values from graph_def."""
@@ -130,15 +114,7 @@ def main():
                 sub = img_shift[y:y+sz,x:x+sz]
                 g = sess.run(t_grad, {t_input:sub})
                 grad[y:y+sz,x:x+sz] = g
-        return np.roll(np.roll(grad, -sx, 1), -sy, 0)    
-
-    #BACK TO CODE IN THE VIDEO###########################################################################################
-    ########################################################################################################
-    ##############################################################################
-    
-    #CHALLENGE - Write a function that outputs a deep dream video
-    #def render_deepdreamvideo():
-        
+        return np.roll(np.roll(grad, -sx, 1), -sy, 0)          
         
     def render_deepdream(t_obj, img0=img_noise,
                          iter_n=10, step=1.5, octave_n=14, octave_scale=1.5):
@@ -154,8 +130,7 @@ def main():
             hi = img-resize(lo, hw)
             img = lo
             octaves.append(hi)
-        
-        # generate details octave by octave
+
         for octave in range(octave_n):
             if octave>0:
                 hi = octaves[-octave]
@@ -164,21 +139,15 @@ def main():
                 g = calc_grad_tiled(img, t_grad)
                 img += g*(step / (np.abs(g).mean()+1e-7))
             
-            #this will usually be like 3 or 4 octaves
-            #Step 5 output deep dream image via matplotlib
             showarray(img/255.0)
-            
-         
-  
-   	#Step 3 - Pick a layer to enhance our image
-    layer = 'inception_5a/3x3'
+                 
+     layer = 'inception_5a/3x3'
     channel = 4239 # picking some feature channel to visualize
     
     #open image
     img0 = PIL.Image.open('fuse.jpg')
     img0 = np.float32(img0)
-     
-    #Step 4 - Apply gradient ascent to that layer
+
     render_deepdream(tf.square(T('mixed4c')), img0)
       
   
